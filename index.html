@@ -43,6 +43,19 @@
                 setSelectedCards([...selectedCards, drawnCard]);
             };
 
+            // Deal specific number of cards
+            const dealCards = (num) => {
+                let shuffledDeck = [...createDeck()].sort(() => Math.random() - 0.5);
+                setSelectedCards(shuffledDeck.slice(0, num));
+                setDeck(createDeck());
+            };
+
+            // Reset deck
+            const resetGame = () => {
+                setDeck(createDeck());
+                setSelectedCards([]);
+            };
+
             return (
                 <div>
                     <h1>React Card Deck</h1>
@@ -55,11 +68,20 @@
                         {deck.length === 0 ? "No Cards Remaining" : "Deck"}
                     </div>
 
+                    {/* Selected Cards */}
+                    <div className="card-container">
+                        {selectedCards.map((card, index) => (
+                            <div key={index} className="card">
+                                {card.value} {card.suit}
+                            </div>
+                        ))}
+                    </div>
+
                     {/* Controls */}
                     <div className="controls">
-                        <button>Deal 5</button>
-                        <button>Deal 7</button>
-                        <button>Reset</button>
+                        <button onClick={() => dealCards(5)}>Deal 5</button>
+                        <button onClick={() => dealCards(7)}>Deal 7</button>
+                        <button onClick={resetGame}>Reset</button>
                         <button>Toss</button>
                         <button>Regroup</button>
                         <button>Wildcard</button>
