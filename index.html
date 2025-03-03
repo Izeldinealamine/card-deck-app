@@ -30,25 +30,32 @@
             return deck;
         };
 
+        const playSound = (soundFile) => {
+            const audio = new Audio(soundFile);
+            audio.play();
+        };
+
         const App = () => {
             const [deck, setDeck] = useState(createDeck());
             const [selectedCards, setSelectedCards] = useState([]);
             const [pickedCard, setPickedCard] = useState(null);
 
-            // Draw a random card
+            // Draw a random card with sound
             const drawCard = () => {
                 if (deck.length === 0) return;
                 let index = Math.floor(Math.random() * deck.length);
                 let drawnCard = deck[index];
                 setDeck(deck.filter((_, i) => i !== index));
                 setSelectedCards([...selectedCards, drawnCard]);
+                playSound("sounds/draw.mp3");
             };
 
-            // Deal specific number of cards
+            // Deal specific number of cards with sound
             const dealCards = (num) => {
                 let shuffledDeck = [...createDeck()].sort(() => Math.random() - 0.5);
                 setSelectedCards(shuffledDeck.slice(0, num));
                 setDeck(createDeck());
+                playSound("sounds/deal.mp3");
             };
 
             // Reset deck
@@ -63,11 +70,12 @@
                 setPickedCard(card === pickedCard ? null : card);
             };
 
-            // Toss selected card (remove permanently)
+            // Toss selected card with sound
             const tossCard = () => {
                 if (!pickedCard) return;
                 setSelectedCards(selectedCards.filter(card => card !== pickedCard));
                 setPickedCard(null);
+                playSound("sounds/toss.mp3");
             };
 
             // Shuffle selected cards
