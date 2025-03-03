@@ -33,6 +33,7 @@
         const App = () => {
             const [deck, setDeck] = useState(createDeck());
             const [selectedCards, setSelectedCards] = useState([]);
+            const [pickedCard, setPickedCard] = useState(null);
 
             // Draw a random card
             const drawCard = () => {
@@ -54,6 +55,24 @@
             const resetGame = () => {
                 setDeck(createDeck());
                 setSelectedCards([]);
+                setPickedCard(null);
+            };
+
+            // Pick a card (toggle selection)
+            const handleCardClick = (card) => {
+                setPickedCard(card === pickedCard ? null : card);
+            };
+
+            // Toss selected card (remove permanently)
+            const tossCard = () => {
+                if (!pickedCard) return;
+                setSelectedCards(selectedCards.filter(card => card !== pickedCard));
+                setPickedCard(null);
+            };
+
+            // Shuffle selected cards
+            const regroupCards = () => {
+                setSelectedCards([...selectedCards].sort(() => Math.random() - 0.5));
             };
 
             return (
@@ -71,7 +90,11 @@
                     {/* Selected Cards */}
                     <div className="card-container">
                         {selectedCards.map((card, index) => (
-                            <div key={index} className="card">
+                            <div 
+                                key={index} 
+                                className={`card ${pickedCard === card ? 'picked' : ''}`} 
+                                onClick={() => handleCardClick(card)}
+                            >
                                 {card.value} {card.suit}
                             </div>
                         ))}
@@ -82,8 +105,8 @@
                         <button onClick={() => dealCards(5)}>Deal 5</button>
                         <button onClick={() => dealCards(7)}>Deal 7</button>
                         <button onClick={resetGame}>Reset</button>
-                        <button>Toss</button>
-                        <button>Regroup</button>
+                        <button onClick={tossCard}>Toss</button>
+                        <button onClick={regroupCards}>Regroup</button>
                         <button>Wildcard</button>
                     </div>
                 </div>
