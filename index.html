@@ -75,6 +75,14 @@
                 setSelectedCards([...selectedCards].sort(() => Math.random() - 0.5));
             };
 
+            // Add a wildcard (random suit and value)
+            const addWildcard = () => {
+                let randomSuit = suits[Math.floor(Math.random() * suits.length)];
+                let randomValue = values[Math.floor(Math.random() * values.length)];
+                let newCard = { suit: randomSuit, value: randomValue };
+                setSelectedCards([...selectedCards, newCard]);
+            };
+
             return (
                 <div>
                     <h1>React Card Deck</h1>
@@ -107,7 +115,7 @@
                         <button onClick={resetGame}>Reset</button>
                         <button onClick={tossCard}>Toss</button>
                         <button onClick={regroupCards}>Regroup</button>
-                        <button>Wildcard</button>
+                        <button onClick={addWildcard}>Wildcard</button>
                     </div>
                 </div>
             );
