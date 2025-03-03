@@ -17,10 +17,53 @@
     <script type="text/babel">
         const { useState } = React;
 
+        const suits = ["♥", "♦", "♣", "♠"];
+        const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+
+        const createDeck = () => {
+            let deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ suit, value });
+                }
+            }
+            return deck;
+        };
+
         const App = () => {
+            const [deck, setDeck] = useState(createDeck());
+            const [selectedCards, setSelectedCards] = useState([]);
+
+            // Draw a random card
+            const drawCard = () => {
+                if (deck.length === 0) return;
+                let index = Math.floor(Math.random() * deck.length);
+                let drawnCard = deck[index];
+                setDeck(deck.filter((_, i) => i !== index));
+                setSelectedCards([...selectedCards, drawnCard]);
+            };
+
             return (
                 <div>
                     <h1>React Card Deck</h1>
+
+                    {/* Deck */}
+                    <div 
+                        className={`deck ${deck.length === 0 ? 'no-cards' : ''}`} 
+                        onClick={drawCard}
+                    >
+                        {deck.length === 0 ? "No Cards Remaining" : "Deck"}
+                    </div>
+
+                    {/* Controls */}
+                    <div className="controls">
+                        <button>Deal 5</button>
+                        <button>Deal 7</button>
+                        <button>Reset</button>
+                        <button>Toss</button>
+                        <button>Regroup</button>
+                        <button>Wildcard</button>
+                    </div>
                 </div>
             );
         };
