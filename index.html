@@ -30,39 +30,36 @@
             return deck;
         };
 
-        const playSound = (soundFile) => {
-            const audio = new Audio(soundFile);
-            audio.play();
-        };
-
         const App = () => {
             const [deck, setDeck] = useState(createDeck());
             const [selectedCards, setSelectedCards] = useState([]);
             const [pickedCard, setPickedCard] = useState(null);
+            const [score, setScore] = useState(0);
 
-            // Draw a random card with sound
+            // Draw a random card
             const drawCard = () => {
                 if (deck.length === 0) return;
                 let index = Math.floor(Math.random() * deck.length);
                 let drawnCard = deck[index];
                 setDeck(deck.filter((_, i) => i !== index));
                 setSelectedCards([...selectedCards, drawnCard]);
-                playSound("sounds/draw.mp3");
+                setScore(score + 1);
             };
 
-            // Deal specific number of cards with sound
+            // Deal specific number of cards
             const dealCards = (num) => {
                 let shuffledDeck = [...createDeck()].sort(() => Math.random() - 0.5);
                 setSelectedCards(shuffledDeck.slice(0, num));
                 setDeck(createDeck());
-                playSound("sounds/deal.mp3");
+                setScore(score + num);
             };
 
-            // Reset deck
+            // Reset game and score
             const resetGame = () => {
                 setDeck(createDeck());
                 setSelectedCards([]);
                 setPickedCard(null);
+                setScore(0);
             };
 
             // Pick a card (toggle selection)
@@ -70,12 +67,11 @@
                 setPickedCard(card === pickedCard ? null : card);
             };
 
-            // Toss selected card with sound
+            // Toss selected card
             const tossCard = () => {
                 if (!pickedCard) return;
                 setSelectedCards(selectedCards.filter(card => card !== pickedCard));
                 setPickedCard(null);
-                playSound("sounds/toss.mp3");
             };
 
             // Shuffle selected cards
@@ -89,11 +85,13 @@
                 let randomValue = values[Math.floor(Math.random() * values.length)];
                 let newCard = { suit: randomSuit, value: randomValue };
                 setSelectedCards([...selectedCards, newCard]);
+                setScore(score + 1);
             };
 
             return (
                 <div>
                     <h1>React Card Deck</h1>
+                    <h2>Score: {score}</h2>
 
                     {/* Deck */}
                     <div 
