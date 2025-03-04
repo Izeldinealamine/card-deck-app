@@ -27,18 +27,26 @@
             const [selectedCards, setSelectedCards] = useState([]);
             const [pickedCard, setPickedCard] = useState(null);
             const [score, setScore] = useState(0);
+            const [timeElapsed, setTimeElapsed] = useState(0);
 
             // Load game data from Local Storage
             useEffect(() => {
                 const savedData = JSON.parse(localStorage.getItem("gameData")) || {};
                 setSelectedCards(savedData.selectedCards || []);
                 setScore(savedData.score || 0);
+                setTimeElapsed(savedData.timeElapsed || 0);
             }, []);
 
-            // Save game data to Local Storage
+            // Save game data to Local Storage whenever selectedCards, score, or timer changes
             useEffect(() => {
-                localStorage.setItem("gameData", JSON.stringify({ selectedCards, score }));
-            }, [selectedCards, score]);
+                localStorage.setItem("gameData", JSON.stringify({ selectedCards, score, timeElapsed }));
+            }, [selectedCards, score, timeElapsed]);
+
+            // Timer updates every second
+            useEffect(() => {
+                const timer = setInterval(() => setTimeElapsed(prev => prev + 1), 1000);
+                return () => clearInterval(timer);
+            }, []);
 
             // Helper function to update deck & score
             const updateDeck = (newCards) => {
@@ -67,6 +75,7 @@
                 setSelectedCards([]);
                 setPickedCard(null);
                 setScore(0);
+                setTimeElapsed(0);
                 localStorage.removeItem("gameData");
             };
 
@@ -102,6 +111,7 @@
                 <div>
                     <h1>React Card Deck</h1>
                     <h2>Score: {score}</h2>
+                    <h3>Time: {Math.floor(timeElapsed / 60)}:{(timeElapsed % 60).toString().padStart(2, "0")}</h3>
 
                     {/* Deck */}
                     <div 
