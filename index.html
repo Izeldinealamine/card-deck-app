@@ -113,6 +113,10 @@
                     <div 
                         className={`deck ${deck.length === 0 ? 'no-cards' : ''}`} 
                         onClick={drawCard}
+                        onKeyPress={(e) => e.key === "Enter" && drawCard()}
+                        tabIndex="0"
+                        role="button"
+                        aria-label="Card deck, click or press Enter to draw a card"
                     >
                         {deck.length === 0 ? "No Cards Remaining" : "Deck"}
                     </div>
@@ -124,6 +128,10 @@
                                 key={index} 
                                 className={`card ${pickedCard === card ? 'picked' : ''}`} 
                                 onClick={() => handleCardClick(card)}
+                                onKeyPress={(e) => e.key === "Enter" && handleCardClick(card)}
+                                tabIndex="0"
+                                role="button"
+                                aria-label={`Card ${card.value} of ${card.suit}, click or press Enter to select`}
                             >
                                 {card.value} {card.suit}
                             </div>
@@ -132,12 +140,12 @@
 
                     {/* Controls */}
                     <div className="controls">
-                        <button onClick={() => dealCards(5)}>Deal 5</button>
-                        <button onClick={() => dealCards(7)}>Deal 7</button>
-                        <button onClick={resetGame}>Reset</button>
-                        <button onClick={tossCard}>Toss</button>
-                        <button onClick={regroupCards}>Regroup</button>
-                        <button onClick={addWildcard}>Wildcard</button>
+                        <button onClick={() => dealCards(5)} aria-label="Deal 5 cards">Deal 5</button>
+                        <button onClick={() => dealCards(7)} aria-label="Deal 7 cards">Deal 7</button>
+                        <button onClick={resetGame} aria-label="Reset the game">Reset</button>
+                        <button onClick={tossCard} aria-label="Toss selected card">Toss</button>
+                        <button onClick={regroupCards} aria-label="Regroup selected cards">Regroup</button>
+                        <button onClick={addWildcard} aria-label="Add a wildcard">Wildcard</button>
                     </div>
                 </div>
             );
