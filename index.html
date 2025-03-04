@@ -28,6 +28,7 @@
             const [pickedCard, setPickedCard] = useState(null);
             const [score, setScore] = useState(0);
             const [timeElapsed, setTimeElapsed] = useState(0);
+            const [timerRunning, setTimerRunning] = useState(false);
 
             // Load game data from Local Storage
             useEffect(() => {
@@ -35,38 +36,47 @@
                 setSelectedCards(savedData.selectedCards || []);
                 setScore(savedData.score || 0);
                 setTimeElapsed(savedData.timeElapsed || 0);
+                setTimerRunning(savedData.timerRunning || false);
             }, []);
 
             // Save game data to Local Storage whenever selectedCards, score, or timer changes
             useEffect(() => {
-                localStorage.setItem("gameData", JSON.stringify({ selectedCards, score, timeElapsed }));
-            }, [selectedCards, score, timeElapsed]);
+                localStorage.setItem("gameData", JSON.stringify({ selectedCards, score, timeElapsed, timerRunning }));
+            }, [selectedCards, score, timeElapsed, timerRunning]);
 
-            // Timer updates every second
+            // Timer updates every second only if running
             useEffect(() => {
-                const timer = setInterval(() => setTimeElapsed(prev => prev + 1), 1000);
+                let timer;
+                if (timerRunning) {
+                    timer = setInterval(() => setTimeElapsed(prev => prev + 1), 1000);
+                }
                 return () => clearInterval(timer);
-            }, []);
+            }, [timerRunning]);
 
-            // Helper function to update deck & score
-            const updateDeck = (newCards) => {
-                setSelectedCards(newCards);
-                setScore(score + newCards.length);
+            // Start timer when game begins
+            const startTimer = () => {
+                if (!timerRunning) {
+                    setTimerRunning(true);
+                }
             };
 
             // Draw a random card
             const drawCard = () => {
                 if (deck.length === 0) return;
+                startTimer();
                 const index = Math.floor(Math.random() * deck.length);
                 setDeck(deck.filter((_, i) => i !== index));
-                updateDeck([...selectedCards, deck[index]]);
+                setSelectedCards([...selectedCards, deck[index]]);
+                setScore(prev => prev + 1);
             };
 
             // Deal multiple cards
             const dealCards = (num) => {
+                startTimer();
                 const shuffledDeck = createDeck().sort(() => Math.random() - 0.5);
-                updateDeck(shuffledDeck.slice(0, num));
+                setSelectedCards(shuffledDeck.slice(0, num));
                 setDeck(createDeck());
+                setScore(prev => prev + num);
             };
 
             // Reset game & clear Local Storage
@@ -76,6 +86,7 @@
                 setPickedCard(null);
                 setScore(0);
                 setTimeElapsed(0);
+                setTimerRunning(false);
                 localStorage.removeItem("gameData");
             };
 
@@ -103,8 +114,10 @@
 
             // Add wildcard
             const addWildcard = () => {
+                startTimer();
                 const randomCard = { suit: suits[Math.floor(Math.random() * suits.length)], value: values[Math.floor(Math.random() * values.length)] };
-                updateDeck([...selectedCards, randomCard]);
+                setSelectedCards([...selectedCards, randomCard]);
+                setScore(prev => prev + 1);
             };
 
             return (
