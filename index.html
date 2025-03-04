@@ -20,15 +20,7 @@
         const suits = ["♥", "♦", "♣", "♠"];
         const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
-        const createDeck = () => {
-            let deck = [];
-            for (let suit of suits) {
-                for (let value of values) {
-                    deck.push({ suit, value });
-                }
-            }
-            return deck;
-        };
+        const createDeck = () => suits.flatMap(suit => values.map(value => ({ suit, value })));
 
         const App = () => {
             const [deck, setDeck] = useState(createDeck());
@@ -36,51 +28,56 @@
             const [pickedCard, setPickedCard] = useState(null);
             const [score, setScore] = useState(0);
 
-            // Load saved game data from Local Storage
+            // Load game data from Local Storage
             useEffect(() => {
-                const savedCards = JSON.parse(localStorage.getItem("selectedCards")) || [];
-                const savedScore = JSON.parse(localStorage.getItem("score")) || 0;
-                setSelectedCards(savedCards);
-                setScore(savedScore);
+                const savedData = JSON.parse(localStorage.getItem("gameData")) || {};
+                setSelectedCards(savedData.selectedCards || []);
+                setScore(savedData.score || 0);
             }, []);
 
-            // Save data to Local Storage whenever selectedCards or score change
+            // Save game data to Local Storage
             useEffect(() => {
-                localStorage.setItem("selectedCards", JSON.stringify(selectedCards));
-                localStorage.setItem("score", JSON.stringify(score));
+                localStorage.setItem("gameData", JSON.stringify({ selectedCards, score }));
             }, [selectedCards, score]);
+
+            // Helper function to update deck & score
+            const updateDeck = (newCards) => {
+                setSelectedCards(newCards);
+                setScore(score + newCards.length);
+            };
 
             // Draw a random card
             const drawCard = () => {
                 if (deck.length === 0) return;
-                let index = Math.floor(Math.random() * deck.length);
-                let drawnCard = deck[index];
+                const index = Math.floor(Math.random() * deck.length);
                 setDeck(deck.filter((_, i) => i !== index));
-                setSelectedCards([...selectedCards, drawnCard]);
-                setScore(score + 1);
+                updateDeck([...selectedCards, deck[index]]);
             };
 
-            // Deal specific number of cards
+            // Deal multiple cards
             const dealCards = (num) => {
-                let shuffledDeck = [...createDeck()].sort(() => Math.random() - 0.5);
-                setSelectedCards(shuffledDeck.slice(0, num));
+                const shuffledDeck = createDeck().sort(() => Math.random() - 0.5);
+                updateDeck(shuffledDeck.slice(0, num));
                 setDeck(createDeck());
-                setScore(score + num);
             };
 
-            // Reset game and clear Local Storage
+            // Reset game & clear Local Storage
             const resetGame = () => {
                 setDeck(createDeck());
                 setSelectedCards([]);
                 setPickedCard(null);
                 setScore(0);
-                localStorage.removeItem("selectedCards");
-                localStorage.removeItem("score");
+                localStorage.removeItem("gameData");
             };
 
-            // Pick a card (toggle selection)
+            // Pick & swap cards
             const handleCardClick = (card) => {
-                setPickedCard(card === pickedCard ? null : card);
+                if (pickedCard) {
+                    setSelectedCards(selectedCards.map(c => c === pickedCard ? card : c === card ? pickedCard : c));
+                    setPickedCard(null);
+                } else {
+                    setPickedCard(card === pickedCard ? null : card);
+                }
             };
 
             // Toss selected card
@@ -91,17 +88,14 @@
             };
 
             // Shuffle selected cards
-            const regroupCards = () => {
+            const shuffleCards = () => {
                 setSelectedCards([...selectedCards].sort(() => Math.random() - 0.5));
             };
 
-            // Add a wildcard (random suit and value)
+            // Add wildcard
             const addWildcard = () => {
-                let randomSuit = suits[Math.floor(Math.random() * suits.length)];
-                let randomValue = values[Math.floor(Math.random() * values.length)];
-                let newCard = { suit: randomSuit, value: randomValue };
-                setSelectedCards([...selectedCards, newCard]);
-                setScore(score + 1);
+                const randomCard = { suit: suits[Math.floor(Math.random() * suits.length)], value: values[Math.floor(Math.random() * values.length)] };
+                updateDeck([...selectedCards, randomCard]);
             };
 
             return (
@@ -144,7 +138,7 @@
                         <button onClick={() => dealCards(7)} aria-label="Deal 7 cards">Deal 7</button>
                         <button onClick={resetGame} aria-label="Reset the game">Reset</button>
                         <button onClick={tossCard} aria-label="Toss selected card">Toss</button>
-                        <button onClick={regroupCards} aria-label="Regroup selected cards">Regroup</button>
+                        <button onClick={shuffleCards} aria-label="Shuffle selected cards">Shuffle</button>
                         <button onClick={addWildcard} aria-label="Add a wildcard">Wildcard</button>
                     </div>
                 </div>
